@@ -395,15 +395,3 @@ src/semantic_change/
 ├── taxonomy.py      Change types and severities
 └── config.py        Settings from SCD_* environment variables
 ```
-
-## Limitations
-
-- The engine supports English only (`en_core_web_sm`).
-- Each request with changed words calls Claude. This costs tokens and takes some seconds.
-  `/v1/analyze` shows the token counts.
-- Claude writes the summary, the evidence and the risk. Two runs can give different words.
-- The clause rules use the dependency parse. Long or unusual sentences can split in a
-  different way.
-- The API has no authentication and no rate limit. Put it behind a gateway before you
-  expose it.
-- The texts go to the Claude API. Send only data that your data policy allows.
