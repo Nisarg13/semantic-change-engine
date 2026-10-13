@@ -46,8 +46,8 @@ def test_request_follows_the_api_rules() -> None:
     )
     run(client, [CANCEL])
     request = client.requests[0]
-    assert request["model"] == "claude-opus-5-5"
-    assert "tool_choice" not in request  # forced tool use is rejected by Opus 5.5
+    assert request["model"] == "claude-sonnet-5-5"
+    assert "tool_choice" not in request  # forced tool use is rejected by Sonnet 5.5
     assert all(t["strict"] and not t["input_schema"]["additionalProperties"] for t in TOOLS)
     assert request["thinking"] == {"type": "adaptive"}
     assert request["output_config"] == {"effort": "medium"}

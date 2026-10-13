@@ -1,7 +1,7 @@
 """Runtime settings.
 
 An environment variable with the prefix ``SCD_`` and the field name in upper case
-overrides each setting, for example ``SCD_LLM_MODEL=claude-sonnet-5-5``. The Anthropic
+overrides each setting, for example ``SCD_LLM_MODEL=claude-opus-5-5``. The Anthropic
 SDK reads the API key from ``ANTHROPIC_API_KEY``.
 """
 
@@ -26,7 +26,7 @@ class Settings(BaseModel):
     # Stage 3: minimum cosine similarity to match a unit of text A with a unit of text B
     align_threshold: float = Field(default=0.45, ge=0, le=1)
     # Stage 4: evaluation agent
-    llm_model: str = Field(default="claude-opus-5-5", min_length=1)
+    llm_model: str = Field(default="claude-sonnet-5-5", min_length=1)
     llm_effort: Literal["low", "medium", "high", "xhigh", "max"] = "medium"  # thinking depth
     llm_max_tokens: int = Field(default=16_000, gt=0)  # output limit of one agent turn
     agent_max_turns: int = Field(default=10, gt=0)  # the verdict must come within this limit

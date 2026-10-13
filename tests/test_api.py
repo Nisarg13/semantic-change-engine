@@ -112,4 +112,4 @@ def test_invalid_input_is_422(make_client) -> None:
 def test_health(make_client) -> None:
     body = make_client(ScriptedClient()).get("/health").json()
     assert body["status"] == "ok"
-    assert body["llm_model"] == "claude-opus-5-5"
+    assert body["llm_model"] == "claude-sonnet-5-5"
