@@ -1,0 +1,354 @@
+{
+  "info": {
+    "name": "Semantic Change Detection Engine",
+    "description": "Requests for the REST API of the Semantic Change Detection Engine.\n\n1. Start the server: `uvicorn semantic_change.api:create_app --factory --port 8000 --env-file .env`\n2. If the server runs on a different host or port, change the collection variable `baseUrl`.\n3. Send a request, or run the whole collection with the Collection Runner. Each request has tests.\n\nThe requests that call Claude need ANTHROPIC_API_KEY in the `.env` file of the server. Without a key, they return 503.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:8000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/health",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "health"
+          ]
+        },
+        "description": "Service status and the names of the configured models. No Claude call."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"Status is ok\", function () {",
+              "    pm.expect(pm.response.json().status).to.eql(\"ok\");",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Detect - example 1: restriction added",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/v1/detect",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "v1",
+            "detect"
+          ]
+        },
+        "description": "Example 1 of the assignment. Expected: change_detected true, restriction_added, high. This request calls Claude: it takes some seconds and uses API credit.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"text_a\": \"Users can cancel their subscription anytime.\",\n  \"text_b\": \"Users can cancel their subscription within 7 days.\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"Meaning changed\", function () {",
+              "    pm.expect(pm.response.json().change_detected).to.eql(true);",
+              "});",
+              "pm.test(\"Change type is restriction_added\", function () {",
+              "    pm.expect(pm.response.json().change_type).to.eql(\"restriction_added\");",
+              "});",
+              "pm.test(\"Severity is high\", function () {",
+              "    pm.expect(pm.response.json().severity).to.eql(\"high\");",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Detect - example 2: paraphrase",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/v1/detect",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "v1",
+            "detect"
+          ]
+        },
+        "description": "Example 2 of the assignment. Expected: change_detected false, paraphrase, low. This request calls Claude: it takes some seconds and uses API credit.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"text_a\": \"Users must log in to continue.\",\n  \"text_b\": \"Login is required to continue.\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"Meaning did not change\", function () {",
+              "    pm.expect(pm.response.json().change_detected).to.eql(false);",
+              "});",
+              "pm.test(\"Change type is paraphrase\", function () {",
+              "    pm.expect(pm.response.json().change_type).to.eql(\"paraphrase\");",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Detect - meaning reversed",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/v1/detect",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "v1",
+            "detect"
+          ]
+        },
+        "description": "One added word reverses the meaning. The cosine similarity is still 0.88, so only the agent can find this change. This request calls Claude: it takes some seconds and uses API credit.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"text_a\": \"Users may share their credentials.\",\n  \"text_b\": \"Users may not share their credentials.\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"Meaning changed\", function () {",
+              "    pm.expect(pm.response.json().change_detected).to.eql(true);",
+              "});",
+              "pm.test(\"Change type is meaning_reversed\", function () {",
+              "    pm.expect(pm.response.json().change_type).to.eql(\"meaning_reversed\");",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Analyze - policy with several changes",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/v1/analyze",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "v1",
+            "analyze"
+          ]
+        },
+        "description": "A short policy with a changed number, a moved sentence, an extended sentence and a new sentence. The response has each changed unit with the finding of the agent, the agent trace and the Markdown report. This request calls Claude: it takes some seconds and uses API credit.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"text_a\": \"Refunds are available within 30 days of purchase. Shipping is free for all orders. Support answers questions by email.\",\n  \"text_b\": \"Shipping is free for all orders. Refunds are available within 14 days of purchase. Support answers questions by email and chat. A processing fee of $5 applies to all refunds.\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"Meaning changed\", function () {",
+              "    pm.expect(pm.response.json().result.change_detected).to.eql(true);",
+              "});",
+              "pm.test(\"Report is Markdown\", function () {",
+              "    pm.expect(pm.response.json().report).to.include(\"# Semantic change report\");",
+              "});",
+              "pm.test(\"Each changed unit has a finding\", function () {",
+              "    const units = pm.response.json().units.filter(u => u.status !== \"moved\");",
+              "    pm.expect(units.length).to.be.above(0);",
+              "    units.forEach(u => pm.expect(u.finding).to.be.an(\"object\"));",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Detect - no change (no Claude call)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/v1/detect",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "v1",
+            "detect"
+          ]
+        },
+        "description": "Only the case and the punctuation are different. The pipeline answers without Claude, so this request works without an API key.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"text_a\": \"Users can cancel anytime.\",\n  \"text_b\": \"users can cancel anytime\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"Change type is no_change\", function () {",
+              "    pm.expect(pm.response.json().change_type).to.eql(\"no_change\");",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Detect - invalid request (422)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/v1/detect",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "v1",
+            "detect"
+          ]
+        },
+        "description": "text_b is missing, so the API returns 422 with the validation errors.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"text_a\": \"Only one text.\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status is 422\", function () {",
+              "    pm.response.to.have.status(422);",
+              "});"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

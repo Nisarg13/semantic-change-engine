@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="540" viewBox="0 0 1200 540" role="img" aria-label="Architecture of the Semantic Change Detection Engine">
+<rect width="1200" height="540" fill="#ffffff"/>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#334155"/></marker></defs>
+<text x="600.0" y="44" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="24" font-weight="bold" font-style="normal" fill="#0f172a" text-anchor="middle">Semantic Change Detection Engine</text>
+<text x="600.0" y="72" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="15" font-weight="normal" font-style="normal" fill="#475569" text-anchor="middle">Stages 1 to 3: deterministic NLP. Stage 4: a Claude agent with tools.</text>
+<rect x="24" y="150" width="150" height="80" rx="10" fill="#f8fafc" stroke="#64748b" stroke-width="2"/>
+<text x="99" y="184" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="15" font-weight="bold" font-style="normal" fill="#0f172a" text-anchor="middle">Document A</text>
+<text x="99" y="206" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" font-style="normal" fill="#475569" text-anchor="middle">original text (text_a)</text>
+<rect x="24" y="250" width="150" height="80" rx="10" fill="#f8fafc" stroke="#64748b" stroke-width="2"/>
+<text x="99" y="284" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="15" font-weight="bold" font-style="normal" fill="#0f172a" text-anchor="middle">Document B</text>
+<text x="99" y="306" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" font-style="normal" fill="#475569" text-anchor="middle">modified text (text_b)</text>
+<rect x="204" y="130" width="180" height="220" rx="10" fill="#eff6ff"/>
+<path d="M204,178 V140 Q204,130 214,130 H374 Q384,130 384,140 V178 Z" fill="#2563eb"/>
+<rect x="204" y="130" width="180" height="220" rx="10" fill="none" stroke="#2563eb" stroke-width="2"/>
+<text x="294.0" y="151" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="14" font-weight="bold" font-style="normal" fill="#ffffff" text-anchor="middle">1. Sentence</text>
+<text x="294.0" y="168" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="14" font-weight="bold" font-style="normal" fill="#ffffff" text-anchor="middle">Tokenizer</text>
+<text x="294.0" y="206" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" font-style="normal" fill="#0f172a" text-anchor="middle">spaCy en_core_web_sm</text>
+<text x="294.0" y="226" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="13" font-weight="normal" font-style="normal" fill="#0f172a" text-anchor="middle">dependency parse</text>
+<text x="294.0" y="254" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="13" font-weight="normal" font-style="normal" fill="#0f172a" text-anchor="middle">splits each text into</text>
+<text x="294.0" y="273" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="13" font-weight="normal" font-style="normal" fill="#0f172a" text-anchor="middle">clause units</text>
+<text x="294.0" y="301" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="13" font-weight="normal" font-style="normal" fill="#0f172a" text-anchor="middle">a line break ends a unit,</text>
+<text x="294.0" y="320" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="13" font-weight="normal" font-style="normal" fill="#0f172a" text-anchor="middle">so bullets become units</text>
+<rect x="410" y="130" width="170" height="220" rx="10" fill="#f5f3ff"/>
+<path d="M410,178 V140 Q410,130 420,130 H570 Q580,130 580,140 V178 Z" fill="#7c3aed"/>
+<rect x="410" y="130" width="170" height="220" rx="10" fill="none" stroke="#7c3aed" stroke-width="2"/>
+<text x="495.0" y="151" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="14" font-weight="bold" font-style="normal" fill="#ffffff" text-anchor="middle">2. Embedding</text>
+<text x="495.0" y="168" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="14" font-weight="bold" font-style="normal" fill="#ffffff" text-anchor="middle">Layer</text>
+<text x="495.0" y="206" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" font-style="normal" fill="#0f172a" text-anchor="middle">all-MiniLM-L6-v2</text>
+<text x="495.0" y="226" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="13" font-weight="normal" font-style="normal" fill="#0f172a" text-anchor="middle">sentence-transformers</text>
+<text x="495.0" y="254" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="13" font-weight="normal" font-style="normal" fill="#0f172a" text-anchor="middle">one normalized vector</text>
+<text x="495.0" y="273" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="13" font-weight="normal" font-style="normal" fill="#0f172a" text-anchor="middle">for each unit</text>
+<text x="495.0" y="301" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="13" font-weight="normal" font-style="normal" fill="#0f172a" text-anchor="middle">cosine similarity =</text>
+<text x="495.0" y="320" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="13" font-weight="normal" font-style="normal" fill="#0f172a" text-anchor="middle">dot product</text>
+<rect x="606" y="130" width="180" height="220" rx="10" fill="#ecfeff"/>
+<path d="M606,178 V140 Q606,130 616,130 H776 Q786,130 786,140 V178 Z" fill="#0e7490"/>
+<rect x="606" y="130" width="180" height="220" rx="10" fill="none" stroke="#0e7490" stroke-width="2"/>
+<text x="696.0" y="151" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="14" font-weight="bold" font-style="normal" fill="#ffffff" text-anchor="middle">3. Semantic Alignment</text>
+<text x="696.0" y="168" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="14" font-weight="bold" font-style="normal" fill="#ffffff" text-anchor="middle">&amp; Clustering</text>
+<text x="696.0" y="206" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="13" font-weight="normal" font-style="normal" fill="#0f172a" text-anchor="middle">1. same wording first</text>
+<text x="696.0" y="226" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="13" font-weight="normal" font-style="normal" fill="#0f172a" text-anchor="middle">2. Hungarian matching</text>
+<text x="696.0" y="244" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="13" font-weight="normal" font-style="normal" fill="#0f172a" text-anchor="middle">on cosine (SciPy)</text>
+<text x="696.0" y="264" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="13" font-weight="normal" font-style="normal" fill="#0f172a" text-anchor="middle">3. split / merge clustering</text>
+<text x="696.0" y="296" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="bold" font-style="normal" fill="#0f172a" text-anchor="middle">status of each unit:</text>
+<text x="696.0" y="314" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" font-style="normal" fill="#0f172a" text-anchor="middle">unchanged, moved,</text>
+<text x="696.0" y="331" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" font-style="normal" fill="#0f172a" text-anchor="middle">modified, inserted, deleted</text>
+<rect x="812" y="130" width="190" height="220" rx="10" fill="#fff7ed"/>
+<path d="M812,178 V140 Q812,130 822,130 H992 Q1002,130 1002,140 V178 Z" fill="#c2410c"/>
+<rect x="812" y="130" width="190" height="220" rx="10" fill="none" stroke="#c2410c" stroke-width="2"/>
+<text x="907.0" y="151" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="14" font-weight="bold" font-style="normal" fill="#ffffff" text-anchor="middle">4. LLM Evaluation</text>
+<text x="907.0" y="168" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="14" font-weight="bold" font-style="normal" fill="#ffffff" text-anchor="middle">Loop (agent)</text>
+<text x="907.0" y="206" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" font-style="normal" fill="#0f172a" text-anchor="middle">Claude agent</text>
+<text x="907.0" y="225" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" font-style="normal" fill="#0f172a" text-anchor="middle">Claude Sonnet or Opus</text>
+<text x="907.0" y="252" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="bold" font-style="normal" fill="#0f172a" text-anchor="middle">tool loop:</text>
+<text x="907.0" y="271" font-family="SFMono-Regular, Menlo, Consolas, monospace" font-size="12" font-weight="normal" font-style="normal" fill="#0f172a" text-anchor="middle">inspect_unit</text>
+<text x="907.0" y="289" font-family="SFMono-Regular, Menlo, Consolas, monospace" font-size="12" font-weight="normal" font-style="normal" fill="#0f172a" text-anchor="middle">record_finding</text>
+<text x="907.0" y="307" font-family="SFMono-Regular, Menlo, Consolas, monospace" font-size="12" font-weight="normal" font-style="normal" fill="#0f172a" text-anchor="middle">submit_verdict</text>
+<text x="907.0" y="333" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" font-style="normal" fill="#0f172a" text-anchor="middle">type, severity and risk</text>
+<rect x="1028" y="130" width="150" height="220" rx="10" fill="#f0fdf4"/>
+<path d="M1028,178 V140 Q1028,130 1038,130 H1168 Q1178,130 1178,140 V178 Z" fill="#15803d"/>
+<rect x="1028" y="130" width="150" height="220" rx="10" fill="none" stroke="#15803d" stroke-width="2"/>
+<text x="1103.0" y="151" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="14" font-weight="bold" font-style="normal" fill="#ffffff" text-anchor="middle">5. Structured</text>
+<text x="1103.0" y="168" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="14" font-weight="bold" font-style="normal" fill="#ffffff" text-anchor="middle">Output</text>
+<text x="1103.0" y="206" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" font-style="normal" fill="#0f172a" text-anchor="middle">JSON verdict</text>
+<text x="1103.0" y="225" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="13" font-weight="normal" font-style="normal" fill="#0f172a" text-anchor="middle">assignment format</text>
+<text x="1103.0" y="260" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" font-style="normal" fill="#0f172a" text-anchor="middle">Markdown report</text>
+<text x="1103.0" y="279" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="13" font-weight="normal" font-style="normal" fill="#0f172a" text-anchor="middle">what changed and</text>
+<text x="1103.0" y="298" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="13" font-weight="normal" font-style="normal" fill="#0f172a" text-anchor="middle">why it matters</text>
+<path d="M174,190 L201,226" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M174,290 L201,254" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M384,264 H408" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M580,264 H604" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M786,264 H810" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M1002,264 H1026" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M696,350 V392 H1068 V354" fill="none" stroke="#334155" stroke-width="2" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="882" y="412" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="normal" font-style="italic" fill="#475569" text-anchor="middle">no changed wording: verdict without a Claude call</text>
+<rect x="24" y="440" width="1154" height="72" rx="10" fill="#f1f5f9" stroke="#94a3b8" stroke-width="2"/>
+<text x="600.0" y="467" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="15" font-weight="bold" font-style="normal" fill="#0f172a" text-anchor="middle">REST API (FastAPI)</text>
+<text x="600.0" y="492" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="13" font-weight="normal" font-style="normal" fill="#475569" text-anchor="middle">GET /health   ·   POST /v1/detect: JSON verdict   ·   POST /v1/analyze: verdict, units, agent trace and Markdown report</text>
+<path d="M99,440 V334" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="108" y="392" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" font-style="normal" fill="#475569" text-anchor="start">request: text_a, text_b</text>
+<path d="M1140,350 V436" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="1132" y="426" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" font-style="normal" fill="#475569" text-anchor="end">response</text>
+</svg>
