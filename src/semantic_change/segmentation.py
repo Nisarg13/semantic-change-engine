@@ -104,26 +104,111 @@ class ClauseSegmenter:
 
 
 def _clauses(tokens: list[Any]) -> list[list[Any]]:
-    """Split the tokens of one sentence before each coordinated clause with its own subject."""
-    first = tokens[0].i
+    """Split the tokens of one sentence before each coordinated clause with its own subject.
+
+    The rule reads the labels that the spaCy parser gives to each token, so the split
+    follows the grammar and not the punctuation. The function uses these public spaCy
+    ``Token`` attributes: ``i`` (position in the document), ``dep_`` (the grammar role),
+    ``children`` (the tokens that depend on this token), ``left_edge`` (the first token
+    of the phrase that this token governs) and ``lower_`` (the lowercase text).
+
+    A coordinated verb (``dep_ == "conj"``) that has its own subject starts a new clause.
+    A coordinated verb that shares the subject of the first verb does not.
+
+    Example, a sentence that is split: "Users can cancel their plan, but the fee is not
+    refunded."
+
+        i   token     dep_
+        0   Users     nsubj
+        1   can       aux
+        2   cancel    ROOT
+        3   their     poss
+        4   plan      dobj
+        5   ,         punct
+        6   but       cc
+        7   the       det
+        8   fee       nsubjpass     <- the subject of "refunded"
+        9   is        auxpass
+        10  not       neg
+        11  refunded  conj          <- a coordinated verb with its own subject
+        12  .         punct
+
+    1. ``first`` is 0, the position of the first token.
+    2. Find the cuts. Only "refunded" is a ``conj`` with a subject child ("fee"). The cut
+       goes where its clause starts, ``left_edge`` = "the" at position 7. A cut at
+       ``first`` is removed, because it would only make an empty group. ``cuts == [7]``.
+    3. Walk the tokens from left to right and start a new group at position 7:
+       ``["Users can cancel their plan , but"]`` and ``["the fee is not refunded ."]``.
+    4. "but" is the last token of the first group, but it belongs to the second clause.
+       A coordinator at the end of a group moves to the start of the next group:
+       ``["Users can cancel their plan ,"]`` and ``["but the fee is not refunded ."]``.
+    5. Empty groups are removed, and the groups are returned.
+
+    Example, a sentence that is not split: "Users can cancel and receive a refund."
+    "receive" is a ``conj``, but it has no subject of its own: both verbs share "Users".
+    ``cuts`` is empty, so all tokens stay in one group.
+
+    The parser decides the labels, so it can miss a clause. In "Users can cancel, the fee
+    is refunded, and the account is closed." the parser labels "cancel" as ``ccomp`` and
+    not as ``conj``, so only the last clause is cut off and the first two stay together.
+
+    Args:
+        tokens: The tokens of one sentence, without whitespace tokens, in text order.
+
+    Returns:
+        The groups of tokens, one for each clause. There are no empty groups.
+    """
+    # The comments below follow this sentence. The numbers are the token positions (``i``):
+    #
+    #   0     1   2      3     4    5 6   7   8   9  10  11       12
+    #   Users can cancel their plan , but the fee is not refunded .
+    #
+    # The parser labels "refunded" as ``conj`` and "fee" as its subject (``nsubjpass``).
+
+    # Step 1: find the positions where a new clause starts.
+    first = tokens[0].i  # position of the first token of the sentence: 0
     cuts = sorted(
+        # A token gives a cut if it is a coordinated verb (conj) with its own subject.
+        # "refunded" does: its subject is "fee". In "Users can cancel and receive a refund"
+        # "receive" does not, because both verbs share the subject "Users".
+        #
+        # left_edge is the first token of the clause of that verb. The cut goes before the
+        # subject "the" (7), not before the verb "refunded" (11). The braces make a set, so
+        # two verbs with the same clause start give one cut.
         {
             t.left_edge.i
             for t in tokens
             if t.dep_ == "conj" and any(child.dep_ in SUBJECTS for child in t.children)
         }
+        # A cut at the first token would only give an empty first group.
         - {first}
-    )
+    )  # sorted() puts the cuts in text order. Example: cuts == [7]. Two cuts give 3 groups.
+
+    # Step 2: walk through the tokens once and start a new group at each cut.
+    # ``groups`` is a list of clauses, and each clause is a list of tokens. One group is open.
     groups: list[list[Any]] = [[]]
+    # ``cut`` is the next position where a new group starts, and None when no cut is left.
+    # ``pending`` gives the cuts one by one: cut = 7 now, and None after position 7.
     pending = iter(cuts)
     cut = next(pending, None)
     for token in tokens:
+        # Start a new group if the token has reached the next cut. "cut is not None" stops a
+        # comparison with None, and "groups[-1]" stops a new group after an empty group.
         if cut is not None and token.i >= cut and groups[-1]:
             groups.append([])
-            cut = next(pending, None)
-        groups[-1].append(token)
+            cut = next(pending, None)  # now wait for the cut after this one
+        groups[-1].append(token)  # each token goes into the newest group
+    # Result of step 2: [Users can cancel their plan , but] [the fee is not refunded .]
+    # The word "but" is in the wrong group: it belongs to the clause that it introduces.
+
+    # Step 3: move a coordinator from the end of a group to the start of the next group.
     # "Users can cancel, but | the fee ..." becomes "Users can cancel, | but the fee ...".
-    for k in range(len(groups) - 1):
+    for k in range(len(groups) - 1):  # every group except the last one has a next group
+        # "while", not "if": "Fees apply, and so | users pay" moves "so" and then "and".
+        # pop() takes the last token of group k, and insert(0, ...) puts it at the start of
+        # group k + 1. The tokens that move keep their order: [and so users pay .].
         while groups[k] and groups[k][-1].lower_ in COORDINATORS:
             groups[k + 1].insert(0, groups[k].pop())
-    return [group for group in groups if group]
+    # Result of step 3: [Users can cancel their plan ,] [but the fee is not refunded .]
+
+    return [group for group in groups if group]  # leave out a group that is empty
